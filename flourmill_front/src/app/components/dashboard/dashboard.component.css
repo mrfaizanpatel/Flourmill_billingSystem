@@ -1,0 +1,23 @@
+/* Minimal font for standard UI */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+  }
+  
+  /* Soft hover buttons */
+  .btn-hover:hover {
+    opacity: 0.9;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease-in-out;
+  }
+  .logout-btn {
+    transition: background-color 0.3s, border-color 0.3s;
+  }
+  
+  .logout-btn:hover {
+    background-color: #ffc107; /* Bootstrap warning color */
+    border-color: #ffc107;
+    color: #000;
+  }
+  

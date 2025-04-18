@@ -1,0 +1,145 @@
+
+<div class="container mt-5">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-semibold text-dark">Customer Management</h2>
+    <button class="btn btn-outline-dark btn-hover" (click)="toggleFormVisibility()">
+      {{ isFormVisible ? 'Hide Form' : 'Add Customer' }}
+    </button>
+  </div>
+
+  <!-- Add/Edit Customer Form -->
+  <div *ngIf="isFormVisible" class="card border-0 shadow-sm p-4 mb-4">
+    <h5 class="mb-3">{{ isEditMode ? 'Edit Customer' : 'Add Customer' }}</h5>
+    <form (ngSubmit)="submitCustomer()">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label for="cust_name" class="form-label">Name</label>
+          <input type="text" class="form-control" id="cust_name" [(ngModel)]="newCustomer.cust_name" name="cust_name" required />
+        </div>
+        <div class="col-md-4">
+          <label for="cust_phone" class="form-label">Phone</label>
+          <input type="text" class="form-control" id="cust_phone" [(ngModel)]="newCustomer.cust_phone" name="cust_phone" required />
+        </div>
+        <div class="col-md-4">
+          <label for="cust_Address" class="form-label">Address</label>
+          <input type="text" class="form-control" id="cust_Address" [(ngModel)]="newCustomer.cust_Address" name="cust_Address" required />
+        </div>
+      </div>
+      <div class="mt-4">
+        <button type="submit" class="btn btn-dark btn-hover me-2">Save</button>
+        <button type="button" class="btn btn-outline-secondary btn-hover" (click)="toggleFormVisibility()">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Customer Table -->
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-borderless table-striped align-middle">
+      <thead class="table-light border-bottom">
+        <tr class="text-muted">
+          <th>ID</th>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Address</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let customer of users">
+          <td>{{ customer.cust_id }}</td>
+          <td>{{ customer.cust_name }}</td>
+          <td>{{ customer.cust_phone }}</td>
+          <td>{{ customer.cust_Address }}</td>
+          <td class="text-center">
+            <button class="btn btn-sm btn-outline-secondary btn-hover me-1" (click)="editCustomer(customer)">Edit</button>
+            <button class="btn btn-sm btn-outline-danger btn-hover me-1" (click)="deleteCustomer(customer.cust_id)">Delete</button>
+            <button class="btn btn-sm btn-outline-primary btn-hover me-1" (click)="viewCustomerDetails(customer)">View</button>
+            <button class="btn btn-sm btn-outline-dark btn-hover" (click)="toggleAddTransactionForm(customer)">Add Txn</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="position-fixed bottom-0 end-0 p-4">
+    <button class="btn btn-outline-dark logout-btn" (click)="logout()">Logout</button>
+  </div>
+
+  <!-- Transaction Table -->
+  <div *ngIf="selectedTransactions.length > 0" class="mt-5">
+    <h5 class="text-dark mb-3">Transactions for {{ selectedCustomer.cust_name }}</h5>
+    <table class="table table-bordered table-sm align-middle">
+      <thead class="table-light">
+        <tr class="text-muted">
+          <th>ID</th>
+          <th>Flour Type</th>
+          <th>Quantity</th>
+          <th>Unit Price</th>
+          <th>Total</th>
+          <th>In Time</th>
+          <th>Out Time</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let txn of selectedTransactions">
+          <td>{{ txn.tansaction_id }}</td>
+          <td>{{ txn.flour_type }}</td>
+          <td>{{ txn.quantity }}</td>
+          <td>{{ txn.unit_price }}</td>
+          <td>{{ txn.total }}</td>
+          <td>{{ txn.in_time | date: 'short' }}</td>
+          <td>{{ txn.out_time | date: 'short' }}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-secondary btn-hover me-1" (click)="editTransaction(txn.tansaction_id)">Edit</button>
+            <button class="btn btn-sm btn-outline-danger btn-hover" (click)="deleteTransaction(txn.tansaction_id)">Delete</button>
+            <button class="btn btn-sm btn-outline-info btn-hover" (click)="printTransactionPDF(txn)">Print Bill</button>
+
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Transaction Form -->
+  <div *ngIf="showAddTransactionForm || selectedTransaction" class="card border-0 shadow-sm p-4 mt-4 bg-light">
+    <h5 class="mb-3">{{ selectedTransaction ? 'Edit Transaction' : 'Add Transaction' }}</h5>
+    <form (ngSubmit)="selectedTransaction ? submitTransactionU() : submitNewTransaction()">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Flour Type</label>
+          <input class="form-control" [(ngModel)]="newTransaction.flour_type" name="flour_type" required />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Quantity</label>
+          <input type="number" class="form-control" [(ngModel)]="newTransaction.quantity" name="quantity" required (input)="calculateTotal()" />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Unit Price</label>
+          <input type="number" class="form-control" [(ngModel)]="newTransaction.unit_price" name="unit_price" required (input)="calculateTotal()" />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">In Time</label>
+          <input type="datetime-local" class="form-control" [(ngModel)]="newTransaction.in_time" name="in_time" required />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Out Time</label>
+          <input type="datetime-local" class="form-control" [(ngModel)]="newTransaction.out_time" name="out_time" required />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Total</label>
+          <input type="text" class="form-control bg-light" [value]="selectedTransaction?.total || newTransaction.total" disabled />
+        </div>
+      </div>
+      <div class="mt-4">
+        <button type="submit" class="btn btn-dark btn-hover me-2">
+          {{ selectedTransaction ? 'Update' : 'Add' }}
+        </button>
+        <button type="button" class="btn btn-outline-secondary btn-hover me-2" (click)="cancelTransactionForm()">Cancel</button>
+        <button type="button" class="btn btn-outline-secondary btn-hover" (click)="toggleAddTransactionForm()">Close</button>
+      </div>
+    </form>
+  </div>
+
+</div>
