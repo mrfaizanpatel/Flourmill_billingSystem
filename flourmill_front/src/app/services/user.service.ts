@@ -55,4 +55,20 @@ export class UserService {
   addTransaction(transactionData: any) {
     return this.http.post(`${this.baseUrl}/savetransaction`, transactionData);
   }
+
+  //getalltransactions
+  getalltransactions(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/getalltransaction`,{responseType:'json'});
+  }
+private loginUrl="/api";
+   // 🔐 Login user
+   login(credentials: { username: string; password: string }): Observable<any> {
+    return this.http.post(this.loginUrl, credentials);
+  }
+
+  private signupUrl="/api";
+  // 📝 Signup user (as member)
+  signup(memberData: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/savemember`, memberData);
+  }
 }
